@@ -489,7 +489,7 @@ export default class StatsigLogger {
         },
         {
           retryOptions: {
-            retryLimit: 3,
+            retryLimit: 1,
             backoff: 1000,
           },
           useKeepalive: isClosing,
@@ -564,9 +564,9 @@ export default class StatsigLogger {
     if (failedRequests.length > MAX_LOCAL_STORAGE_SIZE) {
       fireAndForget = true;
     }
-    let requestBodies = [];
     try {
-      requestBodies = JSON.parse(failedRequests);
+      const requestBodies = JSON.parse(failedRequests);
+      this.clearLocalStorageRequests();
       for (const requestBody of requestBodies) {
         if (
           requestBody != null &&
@@ -585,23 +585,12 @@ export default class StatsigLogger {
                 throw Error(response.status + '');
               }
             })
-            .catch(() => {
-              if (fireAndForget) {
-                this.logDroppedLogEventsException(
-                  requestBody.events.length,
-                  'Flush while shutting down',
-                );
-                return;
-              }
-              this.addFailedRequest(requestBody);
-            });
+            .catch(() => {});
         }
       }
     } catch (e) {
       OutputLogger.error('sendSavedRequests ', e as Error);
       this.sdkInternal.getErrorBoundary().logError('sendSavedRequests', e);
-    } finally {
-      this.clearLocalStorageRequests();
     }
   }
 
