@@ -1,5 +1,5 @@
 {
-  "name": "@haileyok/statsig-js",
+  "name": "statsig-js",
   "version": "5.1.0",
   "description": "Statsig JavaScript client SDK for single user environments.",
   "main": "dist/index.js",
